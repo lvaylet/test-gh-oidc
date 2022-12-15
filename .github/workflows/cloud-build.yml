@@ -31,19 +31,21 @@ jobs:
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
 
+    # reference: https://github.com/google-github-actions/setup-gcloud
     - name: Set up Cloud SDK
       id: setup
       uses: google-github-actions/setup-gcloud@v1
 
+    # only when `create_credentials_file` is `true`
     - name: Authenticate using credentials file
-      run: gcloud auth login --cred-file=${{ steps.auth.outputs.credentials_file_path }}
+      run: gcloud auth login --cred-file ${{ steps.auth.outputs.credentials_file_path }}
 
     # the actual name of the SA might be redacted as *** as GitHub recognizes it as a secret
     - name: Confirm Cloud SDK runs as expected SA
       id: confirm
       run: gcloud info; gcloud auth list
 
-    # only when token_format is access_token
+    # only when `token_format` is `access_token`
     - name: List buckets
       run: |-
         curl -X GET \
