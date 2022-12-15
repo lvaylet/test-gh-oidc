@@ -1,32 +1,40 @@
 name: Test Keyless Authentication with Cloud Build
+
 on:
   push:
     branches:
     - main
+
 jobs:
-  run:
+  cloud-build:
     name: Authenticate and Build
-    permissions:
-      id-token: write
-      contents: read
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
     # checkout MUST come before auth
     - name: Checkout
       id: checkout
       uses: actions/checkout@v3
+
     - name: Authenticate to Google Cloud
       id: auth
-      uses: google-github-actions/auth@v0
+      uses: google-github-actions/auth@v1
       with:
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
+
     - name: Set up Cloud SDK
       id: setup
-      uses: google-github-actions/setup-gcloud@v0
+      uses: google-github-actions/setup-gcloud@v1
+
     - name: Confirm Cloud SDK runs as expected SA
       id: confirm
       run: gcloud auth list
+
     - name: Trigger build on Cloud Build
       id: build
       run: gcloud builds submit --tag "europe-west9-docker.pkg.dev/test-github-oidc/docker/quickstart-image:$GITHUB_SHA"
