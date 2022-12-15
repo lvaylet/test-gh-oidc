@@ -36,6 +36,14 @@ jobs:
       id: confirm
       run: gcloud info; gcloud auth list
 
+    - name: List buckets
+      run: |-
+        curl -X GET \
+          https://storage.googleapis.com/storage/v1/b?project=${{ secrets.PROJECT_ID }} \
+          --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
+
     - name: Trigger build on Cloud Build
       id: build
-      run: gcloud builds submit --tag "europe-west9-docker.pkg.dev/test-github-oidc/docker/quickstart-image:$GITHUB_SHA"
+      run: gcloud builds submit \
+        --quiet \
+        --tag "europe-west9-docker.pkg.dev/${{ secrets.PROJECT_ID }}/docker/quickstart-image:$GITHUB_SHA"
