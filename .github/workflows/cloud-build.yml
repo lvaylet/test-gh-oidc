@@ -33,7 +33,7 @@ jobs:
 
     - name: Confirm Cloud SDK runs as expected SA
       id: confirm
-      run: gcloud auth list
+      run: gcloud info; gcloud auth list
 
     - name: Trigger build on Cloud Build
       id: build
