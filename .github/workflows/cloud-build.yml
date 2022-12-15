@@ -52,6 +52,7 @@ jobs:
 
     - name: Trigger build on Cloud Build
       id: build
-      run: gcloud builds submit \
-        --quiet \
-        --tag "europe-west9-docker.pkg.dev/${{ secrets.PROJECT_ID }}/docker/quickstart-image:$GITHUB_SHA"
+      run: |-
+        gcloud builds submit \
+          --quiet \
+          --tag "europe-west9-docker.pkg.dev/${{ secrets.PROJECT_ID }}/docker/quickstart-image:$GITHUB_SHA"
