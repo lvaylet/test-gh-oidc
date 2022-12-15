@@ -24,12 +24,19 @@ jobs:
       id: auth
       uses: google-github-actions/auth@v1
       with:
+        token_format: access_token
+        create_credentials_file: true
+        activate_credentials_file: true
+        access_token_lifetime: '100s'
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
 
     - name: Set up Cloud SDK
       id: setup
       uses: google-github-actions/setup-gcloud@v1
+
+    - name: Authenticate using credentials file
+      run: gcloud auth login --cred-file=${{ steps.auth.outputs.credentials_file_path }}
 
     # the actual name of the SA might be redacted as *** as GitHub recognizes it as a secret
     - name: Confirm Cloud SDK runs as expected SA
