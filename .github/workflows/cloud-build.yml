@@ -20,13 +20,13 @@ jobs:
       id: checkout
       uses: actions/checkout@v3
 
+    # reference: https://github.com/google-github-actions/auth
     - name: Authenticate to Google Cloud
       id: auth
       uses: google-github-actions/auth@v1
       with:
         token_format: access_token
         create_credentials_file: true
-        activate_credentials_file: true
         access_token_lifetime: '100s'
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
@@ -43,6 +43,7 @@ jobs:
       id: confirm
       run: gcloud info; gcloud auth list
 
+    # only when token_format is access_token
     - name: List buckets
       run: |-
         curl -X GET \
