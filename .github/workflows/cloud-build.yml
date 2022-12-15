@@ -31,6 +31,7 @@ jobs:
       id: setup
       uses: google-github-actions/setup-gcloud@v1
 
+    # the actual name of the SA might be redacted as *** as GitHub recognizes it as a secret
     - name: Confirm Cloud SDK runs as expected SA
       id: confirm
       run: gcloud info; gcloud auth list
