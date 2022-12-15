@@ -42,7 +42,15 @@ resource "google_project_service" "project" {
     project = var.project_id
     for_each = toset([
         "iamcredentials.googleapis.com",
+        "artifactregistry.googleapis.com",
+        "cloudbuild.googleapis.com",
     ])
     service = each.key
     disable_dependent_services = true
+}
+
+resource "google_artifact_registry_repository" "docker" {
+  location      = "europe-west9"
+  repository_id = "docker"
+  format        = "DOCKER"
 }
