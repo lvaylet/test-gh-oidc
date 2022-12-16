@@ -51,8 +51,8 @@ jobs:
       # Reference: https://github.com/google-github-actions/setup-gcloud
 
     # `create_credentials_file` must be `true`.
-    - name: Authenticate using credentials file
-      run: gcloud auth login --cred-file=${{ steps.auth.outputs.credentials_file_path }}
+#    - name: Authenticate using credentials file
+#      run: gcloud auth login --cred-file=${{ steps.auth.outputs.credentials_file_path }}
 
     - name: Confirm Cloud SDK runs as expected SA
       run: gcloud auth list
