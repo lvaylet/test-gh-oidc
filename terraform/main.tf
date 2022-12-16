@@ -20,7 +20,7 @@ resource "google_project_organization_policy" "workload_identity_pool_provider_p
 
   list_policy {
     allow {
-      all = true  # TODO values = [module.gh_oidc.provider_id] for leat privilege
+      all = true  # TODO values = [module.gh_oidc.provider_id] for least privilege?
     }
   }
 }
