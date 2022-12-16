@@ -1,60 +1,68 @@
-name: Test Keyless Authentication with Cloud Build
+name: Trigger Cloud Build job through Keyless Authentication with Workload Identity Federation
+# Reference: https://cloud.google.com/iam/docs/using-workload-identity-federation#github-actions_1
 
 on:
   push:
     branches:
     - main
+  # Workflow can be triggered manually:
+  workflow_dispatch:
+
+env:
+  REGION: europe-west9
+  IMAGE_NAME: quickstart-image
 
 jobs:
   cloud-build:
     name: Authenticate and Build
     runs-on: ubuntu-latest
 
+    # Allow the job to fetch a GitHub ID token.
     permissions:
-      contents: read
       id-token: write
+      contents: read
 
     steps:
-    # checkout MUST come before auth
+    # checkout MUST come before auth.
     - name: Checkout
-      id: checkout
       uses: actions/checkout@v3
 
-    # reference: https://github.com/google-github-actions/auth
     - name: Authenticate to Google Cloud
       id: auth
       uses: google-github-actions/auth@v1
+      # Reference: https://github.com/google-github-actions/auth
       with:
-        token_format: access_token
-        create_credentials_file: true  # TODO try removing this option (see https://www.padok.fr/en/blog/github-action-gcp-identity)
-        access_token_lifetime: '100s'
+        token_format: access_token     # Required for REST API calls
+        create_credentials_file: true  # TODO: MANDATORY, even for Terraform?
+        access_token_lifetime: '100s'  # TODO: Optional?
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
+      # NOTE The google-github-actions/auth action automatically initializes `GOOGLE_APPLICATION_CREDENTIALS`.
 
-    # reference: https://github.com/google-github-actions/setup-gcloud
-    - name: Set up Cloud SDK
-      id: setup
-      uses: google-github-actions/setup-gcloud@v1
-
-    # only when `create_credentials_file` is `true`
-    - name: Authenticate using credentials file
-      run: gcloud auth login --cred-file ${{ steps.auth.outputs.credentials_file_path }}
-
-    # the actual name of the SA might be redacted as *** as GitHub recognizes it as a secret
-    - name: Confirm Cloud SDK runs as expected SA
-      id: confirm
-      run: gcloud info; gcloud auth list
-
-    # only when `token_format` is `access_token`
-    - name: List buckets
+    # `token_format` must be `access_token`.
+    - name: List buckets with REST API call
       run: |-
         curl -X GET \
           https://storage.googleapis.com/storage/v1/b?project=${{ secrets.PROJECT_ID }} \
           --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
 
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      # Reference: https://github.com/google-github-actions/setup-gcloud
+
+    # `create_credentials_file` must be `true`.
+    - name: Authenticate using credentials file
+      run: gcloud auth login --cred-file=${{ steps.auth.outputs.credentials_file_path }}
+
+    - name: Confirm Cloud SDK runs as expected SA
+      run: gcloud auth list
+      # NOTE The actual name of the SA might be redacted as *** as GitHub recognizes it as a secret.
+
+    - name: List buckets with `gcloud storage` call
+      run: gcloud storage ls
+    
     - name: Trigger build on Cloud Build
-      id: build
       run: |-
         gcloud builds submit \
           --quiet \
-          --tag "europe-west9-docker.pkg.dev/${{ secrets.PROJECT_ID }}/docker/quickstart-image:$GITHUB_SHA"
+          --tag="${{ env.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/docker/${{ env.IMAGE_NAME }}:${GITHUB_SHA}"
