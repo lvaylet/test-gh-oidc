@@ -32,9 +32,9 @@ jobs:
       uses: google-github-actions/auth@v1
       # Reference: https://github.com/google-github-actions/auth
       with:
-        token_format: access_token     # Required for REST API calls
-        create_credentials_file: true  # TODO: MANDATORY, even for Terraform?
-        access_token_lifetime: '100s'  # TODO: Optional?
+        token_format: access_token     # Required for REST API calls.
+        create_credentials_file: true  # Required for client libraries, gcloud and Terraform.
+        access_token_lifetime: '100s'  # Optional. Default = 3600s = 1h.
         workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
         service_account: ${{ secrets.SA_EMAIL }}
       # NOTE The google-github-actions/auth action automatically initializes `GOOGLE_APPLICATION_CREDENTIALS`.
@@ -61,7 +61,7 @@ jobs:
     - name: List buckets with `gcloud storage` call
       run: gcloud storage ls
     
-    - name: Trigger build on Cloud Build
+    - name: Trigger Cloud Build job
       run: |-
         gcloud builds submit \
           --quiet \
