@@ -9,6 +9,6 @@ output "provider_name" {
 }
 
 output "sa_email" {
-  description = "Cloud Build SA email"
+  description = "Cloud Build Service Account email"
   value       = google_service_account.sa.email
 }

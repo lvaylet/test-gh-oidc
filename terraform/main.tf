@@ -20,7 +20,7 @@ resource "google_project_organization_policy" "workload_identity_pool_provider_p
 
   list_policy {
     allow {
-      all = true  # TODO values = [module.gh_oidc.provider_id] for least privilege?
+      all = true # TODO values = [module.gh_oidc.provider_id] for least privilege?
     }
   }
 }
@@ -39,14 +39,14 @@ module "gh_oidc" {
 }
 
 resource "google_project_service" "project" {
-    project = var.project_id
-    for_each = toset([
-        "iamcredentials.googleapis.com",
-        "artifactregistry.googleapis.com",
-        "cloudbuild.googleapis.com",
-    ])
-    service = each.key
-    disable_dependent_services = true
+  project = var.project_id
+  for_each = toset([
+    "iamcredentials.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "cloudbuild.googleapis.com",
+  ])
+  service                    = each.key
+  disable_dependent_services = true
 }
 
 resource "google_artifact_registry_repository" "docker" {

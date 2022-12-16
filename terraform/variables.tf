@@ -1,7 +1,6 @@
-
 variable "project_id" {
   type        = string
-  description = "The project id to create WIF pool and example SA"
+  description = "The ID of the project hosting the WIF pool and Service Account"
 }
 
 variable "repo" {
